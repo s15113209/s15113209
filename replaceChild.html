@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="main">
+        <p id="p1">段落一</p>
+        <p id="p2">段落二</p>
+    </div>
+    <script>
+        var paragraph = document.createElement('p')
+        var node = document.createTextNode("段落三")
+        paragraph.appendChild(node)
+
+        var parent = document.getElementById('main')
+        var secondChild = document.getElementById('p2')
+        //父元素.replaceChild 要換小孩了！ (被換的小孩,換成哪個小孩)
+        parent.replaceChild(paragraph,secondChild)
+    </script>
+</body>
+</html>
