@@ -6,7 +6,7 @@ while (a<9){
     while (b<9){
         b++
         if (b==9) break
-        else console.log(a + "*" + b + "=" + a*b)
+        else console.log(a + "*" + b + "=" + a*b)   //避免與外層迴圈重疊 重複印出兩次*9
     }
     console.log(a + "*" + b + "=" + a*b)
 }
