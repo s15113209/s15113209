@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <ul id="animals">
+        <li>Dog</li>
+        <li>Cat</li>
+    </ul>
+</body>
+<script>
+    var ul = document.getElementById('animals')
+    var li = document.getElementsByTagName('li')  //HTMLCollection
+    var animals = ['Tiger','Horse']
+
+    for(var i=0; i<animals.length; i++){
+        let newElement = document.createElement('li')
+        newElement.innerHTML = animals[i]
+        ul.appendChild(newElement)
+    }
+    console.log(ul)
+</script>
+</html>
