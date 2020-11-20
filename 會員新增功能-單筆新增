@@ -1,0 +1,58 @@
+<?php
+header('Content-Type: application/json; charset=UTF-8');
+//檢查有沒有空欄位 ↓
+
+if(!empty($_POST["name"])&&
+    !empty($_POST["account"])&&
+    !empty($_POST["password"])&&
+    !empty($_POST["gender"])&&
+    !empty($_POST["birthday"])&&
+    !empty($_POST["phone"])&&
+    !empty($_POST["address"])){
+
+    require_once "PDO test.php";
+
+    $sql=$conn->prepare("INSERT INTO member(
+    member_name,
+    member_account,
+    member_password,
+    gender,
+    birthday,
+    phone,
+    member_address
+    )
+    VALUES(?,?,?,?,?,?,?)");
+    $input_account=$_POST["account"];
+//    檢查有沒有重複帳號 ↓
+    $check=$conn->prepare("SELECT member_account FROM member WHERE member_account='$input_account'");
+    $check->execute();
+    if($row=$check->fetch()){
+        if(!empty($row["member_account"]))
+        {
+            $data=array(
+                "message"=>"該帳號已被使用!"
+            );
+        }
+    }
+//    沒有重複帳號的話 將值塞入資料庫 ↓
+    else{
+        $sql -> execute([$_POST["name"],
+            $_POST["account"],
+            $_POST["password"],
+            $_POST["gender"],
+            $_POST["birthday"],
+            $_POST["phone"],
+            $_POST["address"]]);
+
+        $data=array(
+            "message"=>"註冊成功!"
+        );
+    }
+}else{
+//    有空欄位則提醒使用者填寫完整 ↓
+    $data=array(
+        "status"=>0,
+        "message" => "請正確輸入所有欄位!"
+    );
+}
+echo json_encode($data);
