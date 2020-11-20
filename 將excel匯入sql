@@ -4,7 +4,8 @@ if(empty($_FILES["input_file"]["tmp_name"]))        //如果使用者沒有上�
     header("Location: dashboard_member_add.php");
 $input_file=$_FILES["input_file"]["name"];  //匯入PHPSpreadsheet套件
 require 'vendor/autoload.php';
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 if($_FILES["input_file"]["error"]==0){
 $allowedExts = array("xls", "xlsx"); //列出能接受的檔案格式，塞入陣列中備用
 $temp = explode(".", $_FILES["input_file"]["name"]);    //將字串轉成陣列 以點.做分隔
@@ -24,9 +25,9 @@ if (($_FILES["input_file"]["size"] < 2048000) // 小於 2 MB
         $inputFileName="./upload/".$filename;   //你匯入的excel 路徑加名稱
         $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();  //讀取excel .xlsx檔案的物件
         $spreadsheet = $reader->load($inputFileName);   //excel檔通過reader物件讀取出來的內容
-//        var_dump($spreadsheet);   //測試有沒有抓到excel
+//        var_dump($spreadsheet);   //測試有沒有抓到excel 又臭又長
         $worksheet = $spreadsheet->getActiveSheet();    //取得表格資訊
-//        var_dump($worksheet);     //所以我到底抓到了什麼QQ?
+//        var_dump($worksheet);     //一樣臭一樣長 所以我到底抓到了什麼QQ?
         $highestRow = $worksheet->getHighestRow();  // 總行數
         $highestColumn = $worksheet->getHighestColumn();    // 總列數
 //        echo $highestRow."<br>".$highestColumn; //確認行列數
