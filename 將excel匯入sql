@@ -1,0 +1,75 @@
+<?php
+require_once "PDO test.php";    //PDO連線資料庫的檔案
+if(empty($_FILES["input_file"]["tmp_name"]))        //如果使用者沒有上船任何檔案 則返回原頁
+    header("Location: dashboard_member_add.php");
+$input_file=$_FILES["input_file"]["name"];  //匯入PHPSpreadsheet套件
+require 'vendor/autoload.php';
+
+if($_FILES["input_file"]["error"]==0){
+$allowedExts = array("xls", "xlsx"); //列出能接受的檔案格式，塞入陣列中備用
+$temp = explode(".", $_FILES["input_file"]["name"]);    //將字串轉成陣列 以點.做分隔
+$extension = end($temp);    //抓到檔案副檔名
+//var_dump($extension); //測試有沒有抓到副檔名
+}
+if (($_FILES["input_file"]["size"] < 2048000) // 小於 2 MB
+    && in_array($extension, $allowedExts)   //in_array(你要搜的值-必須 , 搜的範圍-必須 , 搜的型態-可選)
+)
+{
+    if (file_exists("upload/" . $_FILES["input_file"]["name"])) {   //files_exists(Path)檢查Path路徑下是否有同黨案名稱
+        echo $_FILES["input_file"]["name"] . " 檔案已經存在。";
+    } else {
+    //重新命名檔名
+        $filename = date('YmdHis' . rand(1000, 9999)) . '.xls'; //rand(最小,最大)返回隨機整數 給予日期+隨機檔名
+        move_uploaded_file($_FILES["input_file"]["tmp_name"], "./upload/" . $filename);
+        $inputFileName="./upload/".$filename;   //你匯入的excel 路徑加名稱
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();  //讀取excel .xlsx檔案的物件
+        $spreadsheet = $reader->load($inputFileName);   //excel檔通過reader物件讀取出來的內容
+//        var_dump($spreadsheet);   //測試有沒有抓到excel
+        $worksheet = $spreadsheet->getActiveSheet();    //取得表格資訊
+//        var_dump($worksheet);     //所以我到底抓到了什麼QQ?
+        $highestRow = $worksheet->getHighestRow();  // 總行數
+        $highestColumn = $worksheet->getHighestColumn();    // 總列數
+//        echo $highestRow."<br>".$highestColumn; //確認行列數
+        if ($highestRow - 2 <= 0) {
+            exit('Excel表格中沒有資料');
+        }
+
+        $sql =$conn->prepare("INSERT INTO member (member_name, 
+                birthday, 
+                gender, 
+                member_account,  
+                member_password, 
+                phone, 
+                member_address) 
+                VALUES(?,?,?,?,?,?,?)");
+        for ($row = 2; $row <= $highestRow; ++$row) {
+            $Customer_name = $worksheet->getCellByColumnAndRow(1, $row)->getValue();     //Customer_name
+            $birthday = $worksheet->getCellByColumnAndRow(2, $row)->getValue();  //birthday
+            $gender = $worksheet->getCellByColumnAndRow(3, $row)->getValue();  //gender
+            $Customer_account = $worksheet->getCellByColumnAndRow(4, $row)->getValue();    //Customer_account
+            $Customer_password = $worksheet->getCellByColumnAndRow(5, $row)->getValue();  //Customer_password
+            $phone = $worksheet->getCellByColumnAndRow(6, $row)->getValue();  //phone
+            $Customer_address = $worksheet->getCellByColumnAndRow(7, $row)->getValue();  //Customer_address
+//            $sql .= "('$Customer_name','$birthday','$gender','$Customer_account',$Customer_password,$phone,$Customer_address),";
+            if($sql->execute([$Customer_name,$birthday,$gender,$Customer_account,$Customer_password,$phone,$Customer_address]))
+                echo "第".($row-1)."筆成功寫入! <br>";
+            else
+                echo "第".($row-1)."筆寫入失敗! <br>";
+
+//            以下專用測試取得的資料是否正確
+            echo "第".($row-1)."筆顧客名稱為:".$Customer_name."<br>";
+            echo "第".($row-1)."筆顧客生日為:".$birthday."<br>";
+            echo "第".($row-1)."筆顧客性別為:".$gender."<br>";
+            echo "第".($row-1)."筆顧客帳號為:".$Customer_account."<br>";
+            echo "第".($row-1)."筆顧客密碼為:".$Customer_password."<br>";
+            echo "第".($row-1)."筆顧客電話為:".$phone."<br>";
+            echo "第".($row-1)."筆顧客地址為:".$Customer_address."<br>";
+            echo "------------------------------------------<br>";
+        }
+//        -----------------------------------------
+    }
+}
+else
+{
+    echo "格式錯誤或檔案超過2MB!"; die();
+}
